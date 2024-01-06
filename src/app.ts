@@ -1,11 +1,29 @@
-import express from "express";
-const app = express();
-const port = 4000;
+import express, { Express } from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import routes from "./routes";
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
+const cors = require("cors");
+const bodyParser = require("body-parser");
 
-app.listen(port, () => {
-  return console.log(`Express is listening at http://localhost:${port}`);
-});
+dotenv.config();
+const app: Express = express();
+
+const PORT: string | number = process.env.PORT || 4000;
+
+app.use(cors());
+app.use(bodyParser.json());
+app.use(routes);
+
+const uri: string = `${process.env.DB_CONN_STRING}/${process.env.DB_NAME}`;
+
+mongoose
+  .connect(uri)
+  .then(() =>
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    })
+  )
+  .catch((error) => {
+    throw error;
+  });
